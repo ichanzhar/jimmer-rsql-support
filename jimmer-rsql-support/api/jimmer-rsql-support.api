@@ -65,3 +65,13 @@ public abstract interface class com/github/ichanzhar/rsql/jimmer/operations/Proc
 	public abstract fun process ()Lorg/babyfish/jimmer/sql/kt/ast/expression/KNonNullExpression;
 }
 
+public final class com/github/ichanzhar/rsql/jimmer/utils/ArgumentConvertor {
+	public static final field INSTANCE Lcom/github/ichanzhar/rsql/jimmer/utils/ArgumentConvertor;
+	public final fun castArgument (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/Object;
+}
+
+public final class com/github/ichanzhar/rsql/jimmer/utils/JavaTypeUtil {
+	public static final field INSTANCE Lcom/github/ichanzhar/rsql/jimmer/utils/JavaTypeUtil;
+	public final fun getPropertyJavaType (Ljava/lang/Class;)Ljava/lang/Class;
+}
+
