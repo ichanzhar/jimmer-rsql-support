@@ -233,8 +233,8 @@ Operator mapping (JPA CriteriaBuilder -> Jimmer Kotlin DSL):
 | `=isNull=` | `IsNullProcessor` | arg `true` -> `expr.isNull()`, `false` -> `expr.isNotNull()`; for a reference association use `table.getAssociatedId(prop).isNull()` to avoid an unnecessary join |
 | `=eqci=` | `EqualCiProcessor` | `expr.ilike(v, LikeMode.EXACT)` (Postgres ILIKE / lower() on others - Jimmer dialect handles it) |
 | `=isEmpty=` | `IsEmptyProcessor` | collection prop only: `true` -> `not(exists(prop) { null })`, `false` -> `exists(prop) { null }`. Implemented in the visitor path since it needs the parent table, not an expression |
-| `=jsonbeq=` | `JsonbEqualProcessor` | native fragment: `sql(Boolean::class, "(%e ->> '<key>') = %v") { expression(expr); value(v) }` - key comes from the argument syntax used in the JPA version, keep it identical |
-| `=jsoneq=` | `JsonEqualProcessor` | same with `->>'` on json column |
+| `=jsonbeq=` | `JsonbEqualProcessor` | shipped (phase 4): `sql(Boolean::class, "jsonb_extract_path_text(%e::jsonb, %v[, %v...]) = %v")` - argument `path|value`, first-pipe split, dot-separated keys, keys and value BOUND (deviation from the JPA literal interpolation, closes the injection surface) |
+| `=jsoneq=` | `JsonEqualProcessor` | same with `json_extract_path_text(%e::json, ...)` |
 
 `ProcessorsFactory` + `RsqlOperationsRegistry` dispatch stays structurally identical to the JPA
 library so custom operators register the same way:

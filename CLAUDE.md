@@ -6,14 +6,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Kotlin library translating RSQL query strings (parsed by `cz.jirutka.rsql:rsql-parser`) into Jimmer ORM `KNonNullExpression<Boolean>` predicates, ported from `rsql-hibernate-jpa` (https://github.com/ichanzhar/rsql-hibernate-jpa). Published to Maven Central as `com.github.ichanzhar:jimmer-rsql-support`.
 
-**Current state: phases 1-5 done.** The full operator set is implemented (parser layer,
-SelectorResolver with EXISTS collections, all COMMON operators, Postgres `=jsonbeq=`/
-`=jsoneq=`), and BOTH examples prove it: spring-boot4-postgres-example (Spring Boot 4,
-manual `KSqlClient` bean - the jimmer starter 0.9.96 is incompatible with Boot 4.1.0)
-and ktor-postgres-example (Ktor 3, zero Spring on the classpath), each with the same
-36-test Testcontainers matrix including SQL-shape assertions. Remaining: docs + Maven
-Central release (phase 6). The authoritative spec is
-`docs/jimmer-rsql-support-implementation-plan.md`.
+**Current state: all six phases done - 0.1.0 release-ready.** Full operator set
+(parser layer, SelectorResolver with EXISTS collections, all COMMON operators,
+Postgres `=jsonbeq=`/`=jsoneq=` with bound-parameter fragments), behavior guards
+(strict `=isEmpty=` booleans, wildcard-requires-string), README with the operator
+reference, and both example suites at 38 tests each. Release is owner-triggered via
+the manual GitHub release workflow (nmcp -> Maven Central, tags v0.1.0). Note:
+jimmer-spring-boot-starter 0.9.96 is incompatible with Spring Boot 4.1.0; the Boot
+example wires a manual `KSqlClient` bean over `jimmer-sql-kotlin` instead.
 
 ## Commands
 
