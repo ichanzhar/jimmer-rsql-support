@@ -28,7 +28,7 @@ dependencies {
     implementation("tools.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
-    implementation("com.github.ichanzhar:jimmer-rsql-support:0.1.0-SNAPSHOT")
+    implementation("com.github.ichanzhar:jimmer-rsql-support:0.1.0")
 
     runtimeOnly("org.postgresql:postgresql")
 

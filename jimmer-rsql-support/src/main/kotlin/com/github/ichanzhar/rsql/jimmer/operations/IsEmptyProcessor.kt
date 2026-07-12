@@ -16,6 +16,9 @@ internal class IsEmptyProcessor(
         }
         val idPropName = requireNotNull(params.prop.targetType).idProp.name
         val exists = params.table.exists<Any>(params.prop.name) { get<Any>(idPropName).isNotNull() }
-        return if (params.argument.toString().toBoolean()) exists?.not() else exists
+        val empty =
+            params.argument.toString().toBooleanStrictOrNull()
+                ?: throw JimmerRsqlSupportException("'=isEmpty=' expects true or false, got '${params.argument}'")
+        return if (empty) exists?.not() else exists
     }
 }
