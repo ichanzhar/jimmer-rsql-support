@@ -1,0 +1,91 @@
+public final class com/github/ichanzhar/rsql/jimmer/ParserContext : java/lang/Enum {
+	public static final field COMMON Lcom/github/ichanzhar/rsql/jimmer/ParserContext;
+	public static final field POSTGRESQL Lcom/github/ichanzhar/rsql/jimmer/ParserContext;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/github/ichanzhar/rsql/jimmer/ParserContext;
+	public static fun values ()[Lcom/github/ichanzhar/rsql/jimmer/ParserContext;
+}
+
+public final class com/github/ichanzhar/rsql/jimmer/RsqlOperation : java/lang/Enum {
+	public static final field Companion Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation$Companion;
+	public static final field EQUAL Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static final field EQUAL_CI Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static final field GREATER_THAN Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static final field GREATER_THAN_OR_EQUAL Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static final field IN Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static final field IS_EMPTY Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static final field IS_NULL Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static final field JSONB_EQ Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static final field JSON_EQ Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static final field LESS_THAN Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static final field LESS_THAN_OR_EQUAL Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static final field NOT_EQUAL Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static final field NOT_IN Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public final fun getContext ()Lcom/github/ichanzhar/rsql/jimmer/ParserContext;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun getOperator ()Lcz/jirutka/rsql/parser/ast/ComparisonOperator;
+	public static fun valueOf (Ljava/lang/String;)Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static fun values ()[Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+}
+
+public final class com/github/ichanzhar/rsql/jimmer/RsqlOperation$Companion {
+	public final fun from (Lcz/jirutka/rsql/parser/ast/ComparisonOperator;)Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+}
+
+public final class com/github/ichanzhar/rsql/jimmer/exception/InvalidDateFormatException : com/github/ichanzhar/rsql/jimmer/exception/JimmerRsqlSupportException {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+}
+
+public final class com/github/ichanzhar/rsql/jimmer/exception/InvalidEnumValueException : com/github/ichanzhar/rsql/jimmer/exception/JimmerRsqlSupportException {
+	public fun <init> (Ljava/lang/Class;Ljava/lang/String;)V
+}
+
+public class com/github/ichanzhar/rsql/jimmer/exception/JimmerRsqlSupportException : java/lang/RuntimeException {
+	public fun <init> (Ljava/lang/String;)V
+}
+
+public final class com/github/ichanzhar/rsql/jimmer/operations/Params {
+	public fun <init> (Lorg/babyfish/jimmer/sql/kt/ast/expression/KPropExpression;Lorg/babyfish/jimmer/meta/ImmutableProp;Ljava/util/List;Ljava/lang/Object;)V
+	public final fun component1 ()Lorg/babyfish/jimmer/sql/kt/ast/expression/KPropExpression;
+	public final fun component2 ()Lorg/babyfish/jimmer/meta/ImmutableProp;
+	public final fun component3 ()Ljava/util/List;
+	public final fun component4 ()Ljava/lang/Object;
+	public final fun copy (Lorg/babyfish/jimmer/sql/kt/ast/expression/KPropExpression;Lorg/babyfish/jimmer/meta/ImmutableProp;Ljava/util/List;Ljava/lang/Object;)Lcom/github/ichanzhar/rsql/jimmer/operations/Params;
+	public static synthetic fun copy$default (Lcom/github/ichanzhar/rsql/jimmer/operations/Params;Lorg/babyfish/jimmer/sql/kt/ast/expression/KPropExpression;Lorg/babyfish/jimmer/meta/ImmutableProp;Ljava/util/List;Ljava/lang/Object;ILjava/lang/Object;)Lcom/github/ichanzhar/rsql/jimmer/operations/Params;
+	public fun equals (Ljava/lang/Object;)Z
+	public final fun getArgs ()Ljava/util/List;
+	public final fun getArgument ()Ljava/lang/Object;
+	public final fun getExpression ()Lorg/babyfish/jimmer/sql/kt/ast/expression/KPropExpression;
+	public final fun getProp ()Lorg/babyfish/jimmer/meta/ImmutableProp;
+	public fun hashCode ()I
+	public fun toString ()Ljava/lang/String;
+}
+
+public abstract interface class com/github/ichanzhar/rsql/jimmer/operations/Processor {
+	public abstract fun process ()Lorg/babyfish/jimmer/sql/kt/ast/expression/KNonNullExpression;
+}
+
+public final class com/github/ichanzhar/rsql/jimmer/utils/ArgumentConvertor {
+	public static final field INSTANCE Lcom/github/ichanzhar/rsql/jimmer/utils/ArgumentConvertor;
+	public final fun castArgument (Ljava/lang/String;Ljava/lang/String;Ljava/lang/Class;)Ljava/lang/Object;
+}
+
+public final class com/github/ichanzhar/rsql/jimmer/utils/JavaTypeUtil {
+	public static final field INSTANCE Lcom/github/ichanzhar/rsql/jimmer/utils/JavaTypeUtil;
+	public final fun getPropertyJavaType (Ljava/lang/Class;)Ljava/lang/Class;
+}
+
+public final class com/github/ichanzhar/rsql/jimmer/utils/RsqlOperationsRegistry {
+	public static final field INSTANCE Lcom/github/ichanzhar/rsql/jimmer/utils/RsqlOperationsRegistry;
+	public final fun getOperationProcessors ()Ljava/util/Map;
+	public final fun getOperations ()Ljava/util/Set;
+	public final fun initDefaultPostgresOperation ()V
+	public final fun registerOperation (Lcz/jirutka/rsql/parser/ast/ComparisonOperator;Lkotlin/jvm/functions/Function1;)V
+}
+
+public final class com/github/ichanzhar/rsql/jimmer/utils/RsqlParserFactory {
+	public static final field INSTANCE Lcom/github/ichanzhar/rsql/jimmer/utils/RsqlParserFactory;
+	public final fun instance (Lcom/github/ichanzhar/rsql/jimmer/ParserContext;)Lcz/jirutka/rsql/parser/RSQLParser;
+	public static synthetic fun instance$default (Lcom/github/ichanzhar/rsql/jimmer/utils/RsqlParserFactory;Lcom/github/ichanzhar/rsql/jimmer/ParserContext;ILjava/lang/Object;)Lcz/jirutka/rsql/parser/RSQLParser;
+}
+
