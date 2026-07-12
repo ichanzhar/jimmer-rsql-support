@@ -1,0 +1,12 @@
+public final class com/github/ichanzhar/rsql/jimmer/exception/InvalidDateFormatException : com/github/ichanzhar/rsql/jimmer/exception/JimmerRsqlSupportException {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+}
+
+public final class com/github/ichanzhar/rsql/jimmer/exception/InvalidEnumValueException : com/github/ichanzhar/rsql/jimmer/exception/JimmerRsqlSupportException {
+	public fun <init> (Ljava/lang/Class;Ljava/lang/String;)V
+}
+
+public class com/github/ichanzhar/rsql/jimmer/exception/JimmerRsqlSupportException : java/lang/RuntimeException {
+	public fun <init> (Ljava/lang/String;)V
+}
+
