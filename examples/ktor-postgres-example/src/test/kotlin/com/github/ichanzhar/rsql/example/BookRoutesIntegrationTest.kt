@@ -257,4 +257,10 @@ class BookRoutesIntegrationTest {
 
     @Test
     fun `collection match yields one row per parent`() = assertCount("reviews.rating>=4", 2)
+
+    @Test
+    fun `rejects wildcard on non-string property with 400`() = assertBadRequest("publicationYear==19*", "wildcard")
+
+    @Test
+    fun `rejects non-boolean isEmpty argument with 400`() = assertBadRequest("reviews=isEmpty=maybe", "true or false")
 }

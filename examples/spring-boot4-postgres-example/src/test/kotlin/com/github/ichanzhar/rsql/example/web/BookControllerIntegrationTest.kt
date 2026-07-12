@@ -358,4 +358,18 @@ class BookControllerIntegrationTest {
             .andExpect(status().isOk)
             .andExpect(jsonPath("$.length()").value(2))
     }
+
+    @Test
+    fun `rejects wildcard on non-string property with 400`() {
+        mockMvc.perform(get("/books").param("query", "publicationYear==19*"))
+            .andExpect(status().isBadRequest)
+            .andExpect(content().string(containsString("wildcard")))
+    }
+
+    @Test
+    fun `rejects non-boolean isEmpty argument with 400`() {
+        mockMvc.perform(get("/books").param("query", "reviews=isEmpty=maybe"))
+            .andExpect(status().isBadRequest)
+            .andExpect(content().string(containsString("true or false")))
+    }
 }

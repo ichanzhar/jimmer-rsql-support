@@ -13,6 +13,7 @@ internal class EqualProcessor(
         val expression = requireNotNull(params.expression) { "'==' requires a property expression" }
         @Suppress("UNCHECKED_CAST")
         return if (isLikeExpression(params.argument)) {
+            requireStringProperty(params.prop)
             (expression as KExpression<String>).like(likePattern(params.argument), LikeMode.EXACT)
         } else {
             expression.eq(params.argument)
