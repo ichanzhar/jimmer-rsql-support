@@ -11,6 +11,10 @@ import kotlin.reflect.KClass
 /**
  * Folds an RSQL AST node into a nullable Jimmer predicate, usable inside any `createQuery` block.
  *
+ * Negation across collections follows EXISTS semantics: `reviews.rating!=5` matches
+ * entities having at least one review whose rating differs from 5, not entities
+ * having no review with rating 5.
+ *
  * @throws JimmerRsqlSupportException for invalid operators or unresolvable selectors.
  */
 public fun <E : Any> Node.toPredicate(table: KProps<E>): KNonNullExpression<Boolean>? =

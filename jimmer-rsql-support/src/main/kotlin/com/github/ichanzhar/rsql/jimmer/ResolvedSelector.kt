@@ -9,4 +9,13 @@ internal sealed interface ResolvedSelector {
         val prop: ImmutableProp,
         val castTarget: Class<out Any>,
     ) : ResolvedSelector
+
+    data class CollectionStep(
+        val token: String,
+        val remainder: String,
+    ) : ResolvedSelector
+
+    data class CollectionTerminal(
+        val prop: ImmutableProp,
+    ) : ResolvedSelector
 }

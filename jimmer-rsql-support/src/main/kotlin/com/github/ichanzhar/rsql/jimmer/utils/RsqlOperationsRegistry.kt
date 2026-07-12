@@ -6,6 +6,7 @@ import com.github.ichanzhar.rsql.jimmer.operations.EqualProcessor
 import com.github.ichanzhar.rsql.jimmer.operations.GtProcessor
 import com.github.ichanzhar.rsql.jimmer.operations.GteProcessor
 import com.github.ichanzhar.rsql.jimmer.operations.InProcessor
+import com.github.ichanzhar.rsql.jimmer.operations.IsEmptyProcessor
 import com.github.ichanzhar.rsql.jimmer.operations.IsNullProcessor
 import com.github.ichanzhar.rsql.jimmer.operations.LtProcessor
 import com.github.ichanzhar.rsql.jimmer.operations.LteProcessor
@@ -32,7 +33,7 @@ public object RsqlOperationsRegistry {
                 RsqlOperation.NOT_IN.operator to { NotInProcessor(it) },
                 RsqlOperation.IS_NULL.operator to { IsNullProcessor(it) },
                 RsqlOperation.EQUAL_CI.operator to { EqualCiProcessor(it) },
-                RsqlOperation.IS_EMPTY.operator to futureStub("=isEmpty=", "phase 3"),
+                RsqlOperation.IS_EMPTY.operator to { IsEmptyProcessor(it) },
             ),
         )
 
