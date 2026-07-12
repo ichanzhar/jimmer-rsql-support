@@ -42,6 +42,8 @@ public object RsqlOperationsRegistry {
     public val operations: Set<ComparisonOperator>
         get() = processors.keys.toSet()
 
+    internal fun processorFor(operator: ComparisonOperator): ProcessorParamsBuilder? = processors[operator]
+
     public fun registerOperation(
         operator: ComparisonOperator,
         processor: ProcessorParamsBuilder,

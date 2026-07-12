@@ -33,6 +33,7 @@ public object ArgumentConvertor {
             BigDecimal::class.java -> arg.toBigDecimalOrNull() ?: arg
             Char::class.javaObjectType -> arg.firstOrNull() ?: arg
             Short::class.javaObjectType -> arg.toShortOrNull() ?: arg
+            Byte::class.javaObjectType -> arg.toByteOrNull() ?: arg
             Boolean::class.javaObjectType -> arg.toBoolean()
             UUID::class.java -> parsedOrRaw(arg) { UUID.fromString(it) }
             Timestamp::class.java, Date::class.java -> parseDate(arg, property)
