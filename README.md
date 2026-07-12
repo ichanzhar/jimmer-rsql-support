@@ -77,7 +77,8 @@ The single argument is `path|value`: the FIRST `|` separates the path from the v
 into jsonb/json object keys - `metadata=jsonbeq=publisher.name|Chilton` compares
 `metadata -> 'publisher' ->> 'name'` to `Chilton`. JSON keys that themselves contain a
 dot are not addressable. Keys and value are sent as bound parameters
-(`jsonb_extract_path_text`), so no user input reaches the SQL text. The column may be
+(`jsonb_extract_path_text` / `json_extract_path_text`), so no user input reaches the
+SQL text. The column may be
 `jsonb`/`json` or a `text` column holding valid JSON.
 
 ## Selectors
