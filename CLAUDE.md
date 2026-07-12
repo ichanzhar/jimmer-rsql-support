@@ -6,15 +6,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Kotlin library translating RSQL query strings (parsed by `cz.jirutka.rsql:rsql-parser`) into Jimmer ORM `KNonNullExpression<Boolean>` predicates, ported from `rsql-hibernate-jpa` (https://github.com/ichanzhar/rsql-hibernate-jpa). Published to Maven Central as `com.github.ichanzhar:jimmer-rsql-support`.
 
-**Current state: phases 1-4 done.** The full operator set is implemented: parser layer,
-SelectorResolver (scalar, reference, embedded, collections via implicit EXISTS at any
-depth), all COMMON operators, and the Postgres-only `=jsonbeq=`/`=jsoneq=`
-(bound-parameter `sql()` fragments, `path|value` argument syntax, registered via
-`ParserContext.POSTGRESQL`). The spring-boot4-postgres-example suite is the acceptance
-evidence. Remaining: Ktor example (phase 5), docs + Maven Central release (phase 6).
-The authoritative spec is `docs/jimmer-rsql-support-implementation-plan.md`. Note:
-jimmer-spring-boot-starter 0.9.96 is incompatible with Spring Boot 4.1.0; the example
-wires a manual `KSqlClient` bean over `jimmer-sql-kotlin` instead.
+**Current state: phases 1-5 done.** The full operator set is implemented (parser layer,
+SelectorResolver with EXISTS collections, all COMMON operators, Postgres `=jsonbeq=`/
+`=jsoneq=`), and BOTH examples prove it: spring-boot4-postgres-example (Spring Boot 4,
+manual `KSqlClient` bean - the jimmer starter 0.9.96 is incompatible with Boot 4.1.0)
+and ktor-postgres-example (Ktor 3, zero Spring on the classpath), each with the same
+36-test Testcontainers matrix including SQL-shape assertions. Remaining: docs + Maven
+Central release (phase 6). The authoritative spec is
+`docs/jimmer-rsql-support-implementation-plan.md`.
 
 ## Commands
 
