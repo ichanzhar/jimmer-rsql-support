@@ -1,6 +1,16 @@
 package com.github.ichanzhar.rsql.jimmer.utils
 
 import com.github.ichanzhar.rsql.jimmer.RsqlOperation
+import com.github.ichanzhar.rsql.jimmer.operations.EqualCiProcessor
+import com.github.ichanzhar.rsql.jimmer.operations.EqualProcessor
+import com.github.ichanzhar.rsql.jimmer.operations.GtProcessor
+import com.github.ichanzhar.rsql.jimmer.operations.GteProcessor
+import com.github.ichanzhar.rsql.jimmer.operations.InProcessor
+import com.github.ichanzhar.rsql.jimmer.operations.IsNullProcessor
+import com.github.ichanzhar.rsql.jimmer.operations.LtProcessor
+import com.github.ichanzhar.rsql.jimmer.operations.LteProcessor
+import com.github.ichanzhar.rsql.jimmer.operations.NotEqualProcessor
+import com.github.ichanzhar.rsql.jimmer.operations.NotInProcessor
 import com.github.ichanzhar.rsql.jimmer.operations.Params
 import com.github.ichanzhar.rsql.jimmer.operations.Processor
 import cz.jirutka.rsql.parser.ast.ComparisonOperator
@@ -11,18 +21,18 @@ public typealias ProcessorParamsBuilder = (Params) -> Processor
 public object RsqlOperationsRegistry {
     private val processors: ConcurrentHashMap<ComparisonOperator, ProcessorParamsBuilder> =
         ConcurrentHashMap(
-            mapOf(
-                RsqlOperation.EQUAL.operator to phase2Stub("=="),
-                RsqlOperation.NOT_EQUAL.operator to phase2Stub("!="),
-                RsqlOperation.GREATER_THAN.operator to phase2Stub(">"),
-                RsqlOperation.GREATER_THAN_OR_EQUAL.operator to phase2Stub(">="),
-                RsqlOperation.LESS_THAN.operator to phase2Stub("<"),
-                RsqlOperation.LESS_THAN_OR_EQUAL.operator to phase2Stub("<="),
-                RsqlOperation.IN.operator to phase2Stub("=in="),
-                RsqlOperation.NOT_IN.operator to phase2Stub("=out="),
-                RsqlOperation.IS_NULL.operator to phase2Stub("=isNull="),
-                RsqlOperation.EQUAL_CI.operator to phase2Stub("=eqci="),
-                RsqlOperation.IS_EMPTY.operator to phase2Stub("=isEmpty="),
+            mapOf<ComparisonOperator, ProcessorParamsBuilder>(
+                RsqlOperation.EQUAL.operator to { EqualProcessor(it) },
+                RsqlOperation.NOT_EQUAL.operator to { NotEqualProcessor(it) },
+                RsqlOperation.GREATER_THAN.operator to { GtProcessor(it) },
+                RsqlOperation.GREATER_THAN_OR_EQUAL.operator to { GteProcessor(it) },
+                RsqlOperation.LESS_THAN.operator to { LtProcessor(it) },
+                RsqlOperation.LESS_THAN_OR_EQUAL.operator to { LteProcessor(it) },
+                RsqlOperation.IN.operator to { InProcessor(it) },
+                RsqlOperation.NOT_IN.operator to { NotInProcessor(it) },
+                RsqlOperation.IS_NULL.operator to { IsNullProcessor(it) },
+                RsqlOperation.EQUAL_CI.operator to { EqualCiProcessor(it) },
+                RsqlOperation.IS_EMPTY.operator to futureStub("=isEmpty=", "phase 3"),
             ),
         )
 
@@ -40,10 +50,12 @@ public object RsqlOperationsRegistry {
     }
 
     public fun initDefaultPostgresOperation() {
-        registerOperation(RsqlOperation.JSON_EQ.operator, phase2Stub("=jsoneq="))
-        registerOperation(RsqlOperation.JSONB_EQ.operator, phase2Stub("=jsonbeq="))
+        registerOperation(RsqlOperation.JSON_EQ.operator, futureStub("=jsoneq=", "phase 4"))
+        registerOperation(RsqlOperation.JSONB_EQ.operator, futureStub("=jsonbeq=", "phase 4"))
     }
 
-    private fun phase2Stub(symbol: String): ProcessorParamsBuilder =
-        { Processor { TODO("Processor for '$symbol' arrives in phase 2") } }
+    private fun futureStub(
+        symbol: String,
+        phase: String,
+    ): ProcessorParamsBuilder = { Processor { TODO("Processor for '$symbol' arrives in $phase") } }
 }
