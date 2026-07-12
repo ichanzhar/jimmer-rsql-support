@@ -22,7 +22,8 @@ repositories {
 dependencies {
     implementation(platform(SpringBootPlugin.BOM_COORDINATES))
     implementation("org.springframework.boot:spring-boot-starter-webmvc")
-    implementation("org.babyfish.jimmer:jimmer-spring-boot-starter:0.9.96")
+    implementation("org.springframework.boot:spring-boot-starter-jdbc")
+    implementation("org.babyfish.jimmer:jimmer-sql-kotlin:0.9.96")
     ksp("org.babyfish.jimmer:jimmer-ksp:0.9.96")
     implementation("tools.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
