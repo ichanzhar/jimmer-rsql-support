@@ -436,12 +436,10 @@ git commit -m "docs: align parent plan json rows with shipped fragments, final C
 - [ ] **Step 1: Publish locally**
 
 Run at the repo root: `./gradlew publishToMavenLocal`
-Expected: BUILD SUCCESSFUL. If it fails on a signing task (no `SIGNING_KEY` in the
-environment), re-run excluding it - find the exact task name in the failure output
-(likely `signMavenJavaPublication`) and use
-`./gradlew publishToMavenLocal -x signMavenJavaPublication`. Record which command
-succeeded - signing itself is exercised only in the release workflow where the key
-exists.
+Expected: BUILD SUCCESSFUL. (Note, post-execution: the `-x` exclusion documented here
+does not work - unconditional `sign(...)` attaches `.asc` artifacts the publish then
+requires. The shipped fix makes `sign(...)` conditional on `SIGNING_KEY` presence, so
+a keyless `publishToMavenLocal` publishes unsigned.)
 
 - [ ] **Step 2: Inspect the published artifacts**
 

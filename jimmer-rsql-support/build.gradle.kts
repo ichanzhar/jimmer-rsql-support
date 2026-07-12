@@ -81,6 +81,6 @@ signing {
     val signingKey = providers.environmentVariable("SIGNING_KEY").orNull
     if (signingKey != null) {
         useInMemoryPgpKeys(signingKey, providers.environmentVariable("SIGNING_PASSWORD").orNull)
+        sign(publishing.publications.getByName("mavenJava"))
     }
-    sign(publishing.publications.getByName("mavenJava"))
 }

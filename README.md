@@ -134,8 +134,9 @@ with one handler; both examples show the pattern (Spring `@RestControllerAdvice`
 Ktor `StatusPages`).
 
 Argument coercion converts to the property's type (numbers, booleans, UUID, dates,
-enums); on conversion failure the raw string is passed through, except dates and
-enums, which throw.
+enums); on conversion failure the raw string is passed through, except legacy
+`Date`/`Timestamp` properties and enums, which throw (`java.time` types fall back to
+the raw string).
 
 ## Version matrix
 
