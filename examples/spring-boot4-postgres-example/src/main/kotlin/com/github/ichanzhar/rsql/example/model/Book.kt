@@ -29,6 +29,9 @@ interface Book {
     @OneToMany(mappedBy = "book")
     val chapters: List<Chapter>
 
+    @OneToMany(mappedBy = "book")
+    val tags: List<BookTag>
+
     @ManyToMany
     @JoinTable(name = "book_categories", joinColumnName = "book_id", inverseJoinColumnName = "category_id")
     val categories: List<Category>

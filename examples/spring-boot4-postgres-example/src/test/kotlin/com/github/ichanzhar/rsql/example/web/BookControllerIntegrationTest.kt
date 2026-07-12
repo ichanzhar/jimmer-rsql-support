@@ -38,7 +38,7 @@ class BookControllerIntegrationTest {
     @BeforeEach
     fun seed() {
         jdbcTemplate.execute(
-            "truncate table book_categories, review, chapter, book, category, author restart identity cascade",
+            "truncate table review_label, book_tag, book_categories, review, chapter, book, category, author restart identity cascade",
         )
         jdbcTemplate.execute(
             """
@@ -57,6 +57,10 @@ class BookControllerIntegrationTest {
                 (1, 1, 'An Unexpected Party', 1),
                 (2, 2, 'Roast Mutton', 1),
                 (3, 1, 'Prologue', 2);
+            insert into book_tag (id, tag, book_id) values
+                (1, 'fantasy', 1), (2, 'classic', 1), (3, 'scifi', 2), (4, 'epic', 2);
+            insert into review_label (id, label, review_id) values
+                (1, 'editorial', 1), (2, 'community', 2), (3, 'urgent', 3), (4, 'editorial', 3);
             insert into book_categories (book_id, category_id) values (1, 1), (2, 2);
             """.trimIndent(),
         )
