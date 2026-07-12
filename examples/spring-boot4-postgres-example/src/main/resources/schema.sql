@@ -21,7 +21,9 @@ create table book (
     author_id bigint references author (id),
     width_cm float8 not null,
     height_cm float8 not null,
-    weight_grams int not null
+    weight_grams int not null,
+    metadata jsonb,
+    details json
 );
 
 create table review (

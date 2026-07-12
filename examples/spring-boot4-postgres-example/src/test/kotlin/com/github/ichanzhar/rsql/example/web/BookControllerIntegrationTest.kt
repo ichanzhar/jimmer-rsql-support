@@ -50,9 +50,11 @@ class BookControllerIntegrationTest {
                 (1, 'J.R.R. Tolkien', 'tolkien@example.com'),
                 (2, 'Frank Herbert', 'herbert@example.com');
             insert into category (id, name) values (1, 'Fantasy'), (2, 'Sci-Fi');
-            insert into book (id, title, isbn, publication_year, author_id, width_cm, height_cm, weight_grams) values
-                (1, 'The Hobbit', '9780618260300', 1937, 1, 13.0, 20.0, 340),
-                (2, 'Dune', null, 1965, 2, 15.0, 23.0, 480);
+            insert into book (id, title, isbn, publication_year, author_id, width_cm, height_cm, weight_grams, metadata, details) values
+                (1, 'The Hobbit', '9780618260300', 1937, 1, 13.0, 20.0, 340,
+                 '{"genre":"fantasy","pages":310,"publisher":{"name":"Unwin"}}'::jsonb, '{"format":"hardcover"}'::json),
+                (2, 'Dune', null, 1965, 2, 15.0, 23.0, 480,
+                 '{"genre":"scifi","pages":412,"publisher":{"name":"Chilton"}}'::jsonb, '{"format":"paperback"}'::json);
             insert into review (id, rating, comment, book_id) values
                 (1, 5, 'A timeless classic', 1),
                 (2, 4, 'Great start to the saga', 1),
@@ -251,7 +253,7 @@ class BookControllerIntegrationTest {
     fun `rejects unknown property inside collection path with 400`() {
         mockMvc.perform(get("/books").param("query", "tags.nosuch==1"))
             .andExpect(status().isBadRequest)
-            .andExpect(content().string(containsString("nosuch")))
+            .andExpect(content().string(containsString("tags.nosuch")))
     }
 
     @Test
@@ -286,8 +288,8 @@ class BookControllerIntegrationTest {
 
     private fun insertBookWithoutRelations() {
         jdbcTemplate.execute(
-            "insert into book (id, title, isbn, publication_year, author_id, width_cm, height_cm, weight_grams) " +
-                "values (3, 'The Silmarillion', '9780048231390', 1977, 1, 14.0, 21.0, 400)",
+            "insert into book (id, title, isbn, publication_year, author_id, width_cm, height_cm, weight_grams, metadata, details) " +
+                "values (3, 'The Silmarillion', '9780048231390', 1977, 1, 14.0, 21.0, 400, null, null)",
         )
     }
 
@@ -317,5 +319,43 @@ class BookControllerIntegrationTest {
             .andExpect(status().isOk)
         val sql = CapturingExecutor.statements.joinToString("\n").lowercase()
         assertTrue(sql.contains("not exists"), sql)
+    }
+
+    @Test
+    fun `filters by jsonb path equality`() {
+        mockMvc.perform(get("/books").param("query", "metadata=jsonbeq=genre|scifi"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].title").value("Dune"))
+    }
+
+    @Test
+    fun `filters by nested jsonb path`() {
+        mockMvc.perform(get("/books").param("query", "metadata=jsonbeq=publisher.name|Chilton"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].title").value("Dune"))
+    }
+
+    @Test
+    fun `filters by json path equality`() {
+        mockMvc.perform(get("/books").param("query", "details=jsoneq=format|paperback"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].title").value("Dune"))
+    }
+
+    @Test
+    fun `rejects malformed json operator argument with 400`() {
+        mockMvc.perform(get("/books").param("query", "metadata=jsonbeq=nopipe"))
+            .andExpect(status().isBadRequest)
+            .andExpect(content().string(containsString("<json.path>|<value>")))
+    }
+
+    @Test
+    fun `collection match yields one row per parent`() {
+        mockMvc.perform(get("/books").param("query", "reviews.rating>=4"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(2))
     }
 }
