@@ -187,4 +187,103 @@ class BookControllerIntegrationTest {
         mockMvc.perform(get("/books").param("query", "title=="))
             .andExpect(status().isBadRequest)
     }
+
+    @Test
+    fun `filters by child entity tag through exists`() {
+        mockMvc.perform(get("/books").param("query", "tags.tag==classic"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].title").value("The Hobbit"))
+    }
+
+    @Test
+    fun `filters by one-to-many field`() {
+        mockMvc.perform(get("/books").param("query", "reviews.rating==5"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(2))
+    }
+
+    @Test
+    fun `negation across collections uses exists semantics`() {
+        mockMvc.perform(get("/books").param("query", "reviews.rating!=5"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].title").value("The Hobbit"))
+    }
+
+    @Test
+    fun `filters by two-level nested collection path`() {
+        mockMvc.perform(get("/books").param("query", "reviews.labels.label==urgent"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].title").value("Dune"))
+    }
+
+    @Test
+    fun `filters by list association field`() {
+        mockMvc.perform(get("/books").param("query", "chapters.title==Prologue"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].title").value("Dune"))
+    }
+
+    @Test
+    fun `filters by many-to-many association`() {
+        mockMvc.perform(get("/books").param("query", "categories.name==Fantasy"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].title").value("The Hobbit"))
+    }
+
+    @Test
+    fun `combines join and nested collection filter with logical and`() {
+        mockMvc.perform(get("/books").param("query", "author.name==*Tolkien*;reviews.labels.label==editorial"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].title").value("The Hobbit"))
+    }
+
+    @Test
+    fun `rejects unknown property inside collection path with 400`() {
+        mockMvc.perform(get("/books").param("query", "tags.nosuch==1"))
+            .andExpect(status().isBadRequest)
+            .andExpect(content().string(containsString("nosuch")))
+    }
+
+    @Test
+    fun `rejects non-isEmpty operator on bare collection with 400`() {
+        mockMvc.perform(get("/books").param("query", "reviews==5"))
+            .andExpect(status().isBadRequest)
+            .andExpect(content().string(containsString("=isEmpty=")))
+    }
+
+    @Test
+    fun `rejects isEmpty on scalar property with 400`() {
+        mockMvc.perform(get("/books").param("query", "title=isEmpty=true"))
+            .andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun `finds books with no reviews via isEmpty true`() {
+        insertBookWithoutRelations()
+        mockMvc.perform(get("/books").param("query", "reviews=isEmpty=true"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].title").value("The Silmarillion"))
+    }
+
+    @Test
+    fun `finds books with reviews via isEmpty false`() {
+        insertBookWithoutRelations()
+        mockMvc.perform(get("/books").param("query", "reviews=isEmpty=false"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(2))
+    }
+
+    private fun insertBookWithoutRelations() {
+        jdbcTemplate.execute(
+            "insert into book (id, title, isbn, publication_year, author_id, width_cm, height_cm, weight_grams) " +
+                "values (3, 'The Silmarillion', '9780048231390', 1977, 1, 14.0, 21.0, 400)",
+        )
+    }
 }
