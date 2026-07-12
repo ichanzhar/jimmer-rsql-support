@@ -25,15 +25,15 @@ public object ArgumentConvertor {
         javaType: Class<out Any>?,
     ): Any =
         when (javaType) {
-            Int::class.java -> arg.toIntOrNull() ?: arg
-            Long::class.java -> arg.toLongOrNull() ?: arg
+            Int::class.javaObjectType -> arg.toIntOrNull() ?: arg
+            Long::class.javaObjectType -> arg.toLongOrNull() ?: arg
             BigInteger::class.java -> arg.toBigIntegerOrNull() ?: arg
-            Double::class.java -> arg.toDoubleOrNull() ?: arg
-            Float::class.java -> arg.toFloatOrNull() ?: arg
+            Double::class.javaObjectType -> arg.toDoubleOrNull() ?: arg
+            Float::class.javaObjectType -> arg.toFloatOrNull() ?: arg
             BigDecimal::class.java -> arg.toBigDecimalOrNull() ?: arg
-            Char::class.java -> arg.firstOrNull() ?: arg
-            Short::class.java -> arg.toShortOrNull() ?: arg
-            Boolean::class.java -> arg.toBoolean()
+            Char::class.javaObjectType -> arg.firstOrNull() ?: arg
+            Short::class.javaObjectType -> arg.toShortOrNull() ?: arg
+            Boolean::class.javaObjectType -> arg.toBoolean()
             UUID::class.java -> parsedOrRaw(arg) { UUID.fromString(it) }
             Timestamp::class.java, Date::class.java -> parseDate(arg, property)
             LocalDate::class.java -> parsedOrRaw(arg) { LocalDate.parse(it) }

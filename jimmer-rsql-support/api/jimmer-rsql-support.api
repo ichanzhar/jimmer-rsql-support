@@ -1,3 +1,19 @@
+public final class com/github/ichanzhar/rsql/jimmer/ApiKt {
+	public static final fun createRsqlQuery (Lorg/babyfish/jimmer/sql/kt/KSqlClient;Lkotlin/reflect/KClass;Ljava/lang/String;Lcom/github/ichanzhar/rsql/jimmer/ParserContext;)Lorg/babyfish/jimmer/sql/kt/ast/query/KConfigurableRootQuery;
+	public static synthetic fun createRsqlQuery$default (Lorg/babyfish/jimmer/sql/kt/KSqlClient;Lkotlin/reflect/KClass;Ljava/lang/String;Lcom/github/ichanzhar/rsql/jimmer/ParserContext;ILjava/lang/Object;)Lorg/babyfish/jimmer/sql/kt/ast/query/KConfigurableRootQuery;
+	public static final fun toPredicate (Lcz/jirutka/rsql/parser/ast/Node;Lorg/babyfish/jimmer/sql/kt/ast/table/KProps;)Lorg/babyfish/jimmer/sql/kt/ast/expression/KNonNullExpression;
+}
+
+public final class com/github/ichanzhar/rsql/jimmer/JimmerRsqlVisitor : cz/jirutka/rsql/parser/ast/RSQLVisitor {
+	public fun <init> ()V
+	public synthetic fun visit (Lcz/jirutka/rsql/parser/ast/AndNode;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun visit (Lcz/jirutka/rsql/parser/ast/AndNode;Lorg/babyfish/jimmer/sql/kt/ast/table/KProps;)Lorg/babyfish/jimmer/sql/kt/ast/expression/KNonNullExpression;
+	public synthetic fun visit (Lcz/jirutka/rsql/parser/ast/ComparisonNode;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun visit (Lcz/jirutka/rsql/parser/ast/ComparisonNode;Lorg/babyfish/jimmer/sql/kt/ast/table/KProps;)Lorg/babyfish/jimmer/sql/kt/ast/expression/KNonNullExpression;
+	public synthetic fun visit (Lcz/jirutka/rsql/parser/ast/OrNode;Ljava/lang/Object;)Ljava/lang/Object;
+	public fun visit (Lcz/jirutka/rsql/parser/ast/OrNode;Lorg/babyfish/jimmer/sql/kt/ast/table/KProps;)Lorg/babyfish/jimmer/sql/kt/ast/expression/KNonNullExpression;
+}
+
 public final class com/github/ichanzhar/rsql/jimmer/ParserContext : java/lang/Enum {
 	public static final field COMMON Lcom/github/ichanzhar/rsql/jimmer/ParserContext;
 	public static final field POSTGRESQL Lcom/github/ichanzhar/rsql/jimmer/ParserContext;
@@ -42,6 +58,14 @@ public final class com/github/ichanzhar/rsql/jimmer/exception/InvalidEnumValueEx
 
 public class com/github/ichanzhar/rsql/jimmer/exception/JimmerRsqlSupportException : java/lang/RuntimeException {
 	public fun <init> (Ljava/lang/String;)V
+}
+
+public final class com/github/ichanzhar/rsql/jimmer/exception/UnknownPropertyException : com/github/ichanzhar/rsql/jimmer/exception/JimmerRsqlSupportException {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+}
+
+public final class com/github/ichanzhar/rsql/jimmer/exception/UnsupportedSelectorException : com/github/ichanzhar/rsql/jimmer/exception/JimmerRsqlSupportException {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
 }
 
 public final class com/github/ichanzhar/rsql/jimmer/operations/Params {
