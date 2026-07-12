@@ -1,12 +1,15 @@
 package com.github.ichanzhar.rsql.example.web
 
 import org.hamcrest.Matchers.containsString
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
+import org.springframework.context.annotation.Import
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -20,6 +23,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer
 @Testcontainers
 @SpringBootTest
 @AutoConfigureMockMvc
+@Import(SqlCaptureConfig::class)
 class BookControllerIntegrationTest {
 
     companion object {
@@ -285,5 +289,33 @@ class BookControllerIntegrationTest {
             "insert into book (id, title, isbn, publication_year, author_id, width_cm, height_cm, weight_grams) " +
                 "values (3, 'The Silmarillion', '9780048231390', 1977, 1, 14.0, 21.0, 400)",
         )
+    }
+
+    @Test
+    fun `collection query is built as exists without distinct`() {
+        CapturingExecutor.statements.clear()
+        mockMvc.perform(get("/books").param("query", "reviews.rating==5"))
+            .andExpect(status().isOk)
+        val sql = CapturingExecutor.statements.joinToString("\n").lowercase()
+        assertTrue(sql.contains("exists"), sql)
+        assertFalse(sql.contains("distinct"), sql)
+    }
+
+    @Test
+    fun `reference join query uses left join`() {
+        CapturingExecutor.statements.clear()
+        mockMvc.perform(get("/books").param("query", "author.name==*Tolkien*"))
+            .andExpect(status().isOk)
+        val sql = CapturingExecutor.statements.joinToString("\n").lowercase()
+        assertTrue(sql.contains("left join"), sql)
+    }
+
+    @Test
+    fun `isEmpty true is built as not exists`() {
+        CapturingExecutor.statements.clear()
+        mockMvc.perform(get("/books").param("query", "reviews=isEmpty=true"))
+            .andExpect(status().isOk)
+        val sql = CapturingExecutor.statements.joinToString("\n").lowercase()
+        assertTrue(sql.contains("not exists"), sql)
     }
 }
