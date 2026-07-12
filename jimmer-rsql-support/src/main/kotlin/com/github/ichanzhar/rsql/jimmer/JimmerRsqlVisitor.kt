@@ -36,18 +36,19 @@ public class JimmerRsqlVisitor<E : Any> : RSQLVisitor<KNonNullExpression<Boolean
     override fun visit(
         node: ComparisonNode,
         table: KProps<E>,
-    ): KNonNullExpression<Boolean>? = predicate(table, node.selector, node)
+    ): KNonNullExpression<Boolean>? = predicate(table, node.selector, node, node.selector)
 
     private fun predicate(
         table: KProps<*>,
         selector: String,
         node: ComparisonNode,
+        context: String,
     ): KNonNullExpression<Boolean>? =
-        when (val resolved = SelectorResolver.resolve(table, selector)) {
+        when (val resolved = SelectorResolver.resolve(table, selector, context)) {
             is ResolvedSelector.Scalar ->
-                dispatch(resolved.expression, resolved.prop, resolved.castTarget, table, node)
+                dispatch(resolved.expression, resolved.prop, resolved.castTarget, table, node, context)
             is ResolvedSelector.CollectionStep ->
-                table.exists<Any>(resolved.token) { predicate(this, resolved.remainder, node) }
+                table.exists<Any>(resolved.token) { predicate(this, resolved.remainder, node, context) }
             is ResolvedSelector.CollectionTerminal ->
                 if (node.operator == RsqlOperation.IS_EMPTY.operator) {
                     dispatch(
@@ -56,10 +57,11 @@ public class JimmerRsqlVisitor<E : Any> : RSQLVisitor<KNonNullExpression<Boolean
                         castTarget = String::class.java,
                         table = table,
                         node = node,
+                        context = context,
                     )
                 } else {
                     throw UnsupportedSelectorException(
-                        selector,
+                        context,
                         "collection property '${resolved.prop.name}' supports only =isEmpty=",
                     )
                 }
@@ -71,9 +73,10 @@ public class JimmerRsqlVisitor<E : Any> : RSQLVisitor<KNonNullExpression<Boolean
         castTarget: Class<out Any>,
         table: KProps<*>,
         node: ComparisonNode,
+        context: String,
     ): KNonNullExpression<Boolean>? {
         val target = JavaTypeUtil.getPropertyJavaType(castTarget)
-        val args = node.arguments.map { ArgumentConvertor.castArgument(it, node.selector, target) }
+        val args = node.arguments.map { ArgumentConvertor.castArgument(it, context, target) }
         val factory =
             RsqlOperationsRegistry.processorFor(node.operator)
                 ?: throw JimmerRsqlSupportException("No processor registered for operator '${node.operator.symbol}'")

@@ -17,6 +17,8 @@ interface Book {
     val title: String
     val isbn: String?
     val publicationYear: Int
+    val metadata: String?
+    val details: String?
 
     @ManyToOne
     val author: Author?
