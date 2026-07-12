@@ -14,13 +14,13 @@ internal object SelectorResolver {
     fun resolve(
         table: KProps<*>,
         selector: String,
-    ): ResolvedSelector.Scalar = resolveFromTable(table, selector.split('.'), selector)
+    ): ResolvedSelector = resolveFromTable(table, selector.split('.'), selector)
 
-    private tailrec fun resolveFromTable(
+    private fun resolveFromTable(
         table: KProps<*>,
         tokens: List<String>,
         selector: String,
-    ): ResolvedSelector.Scalar {
+    ): ResolvedSelector {
         val type = (table as TableSelection).immutableType
         val token = tokens.first()
         val prop =
@@ -28,8 +28,12 @@ internal object SelectorResolver {
                 ?: throw UnknownPropertyException(selector, token, type.javaClass.simpleName)
         val terminal = tokens.size == 1
         return when {
-            prop.isReferenceList(TargetLevel.ENTITY) || prop.isScalarList ->
-                throw UnsupportedSelectorException(selector, "collection property '$token' is not supported yet")
+            prop.isScalarList ->
+                throw UnsupportedSelectorException(selector, "scalar collection property '$token' is not queryable")
+            prop.isReferenceList(TargetLevel.ENTITY) && terminal ->
+                ResolvedSelector.CollectionTerminal(prop)
+            prop.isReferenceList(TargetLevel.ENTITY) ->
+                ResolvedSelector.CollectionStep(token, tokens.drop(1).joinToString("."))
             prop.isReference(TargetLevel.ENTITY) && terminal ->
                 ResolvedSelector.Scalar(
                     expression = table.getAssociatedId(token),

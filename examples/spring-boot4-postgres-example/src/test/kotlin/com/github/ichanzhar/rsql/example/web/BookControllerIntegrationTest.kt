@@ -1,12 +1,15 @@
 package com.github.ichanzhar.rsql.example.web
 
 import org.hamcrest.Matchers.containsString
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc
+import org.springframework.context.annotation.Import
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get
@@ -20,6 +23,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer
 @Testcontainers
 @SpringBootTest
 @AutoConfigureMockMvc
+@Import(SqlCaptureConfig::class)
 class BookControllerIntegrationTest {
 
     companion object {
@@ -38,7 +42,7 @@ class BookControllerIntegrationTest {
     @BeforeEach
     fun seed() {
         jdbcTemplate.execute(
-            "truncate table book_categories, review, chapter, book, category, author restart identity cascade",
+            "truncate table review_label, book_tag, book_categories, review, chapter, book, category, author restart identity cascade",
         )
         jdbcTemplate.execute(
             """
@@ -57,6 +61,10 @@ class BookControllerIntegrationTest {
                 (1, 1, 'An Unexpected Party', 1),
                 (2, 2, 'Roast Mutton', 1),
                 (3, 1, 'Prologue', 2);
+            insert into book_tag (id, tag, book_id) values
+                (1, 'fantasy', 1), (2, 'classic', 1), (3, 'scifi', 2), (4, 'epic', 2);
+            insert into review_label (id, label, review_id) values
+                (1, 'editorial', 1), (2, 'community', 2), (3, 'urgent', 3), (4, 'editorial', 3);
             insert into book_categories (book_id, category_id) values (1, 1), (2, 2);
             """.trimIndent(),
         )
@@ -179,15 +187,135 @@ class BookControllerIntegrationTest {
     }
 
     @Test
-    fun `rejects collection selector with 400 until phase 3`() {
-        mockMvc.perform(get("/books").param("query", "reviews.rating==5"))
-            .andExpect(status().isBadRequest)
-            .andExpect(content().string(containsString("reviews")))
-    }
-
-    @Test
     fun `rejects malformed rsql with 400`() {
         mockMvc.perform(get("/books").param("query", "title=="))
             .andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun `filters by child entity tag through exists`() {
+        mockMvc.perform(get("/books").param("query", "tags.tag==classic"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].title").value("The Hobbit"))
+    }
+
+    @Test
+    fun `filters by one-to-many field`() {
+        mockMvc.perform(get("/books").param("query", "reviews.rating==5"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(2))
+    }
+
+    @Test
+    fun `negation across collections uses exists semantics`() {
+        mockMvc.perform(get("/books").param("query", "reviews.rating!=5"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].title").value("The Hobbit"))
+    }
+
+    @Test
+    fun `filters by two-level nested collection path`() {
+        mockMvc.perform(get("/books").param("query", "reviews.labels.label==urgent"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].title").value("Dune"))
+    }
+
+    @Test
+    fun `filters by list association field`() {
+        mockMvc.perform(get("/books").param("query", "chapters.title==Prologue"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].title").value("Dune"))
+    }
+
+    @Test
+    fun `filters by many-to-many association`() {
+        mockMvc.perform(get("/books").param("query", "categories.name==Fantasy"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].title").value("The Hobbit"))
+    }
+
+    @Test
+    fun `combines join and nested collection filter with logical and`() {
+        mockMvc.perform(get("/books").param("query", "author.name==*Tolkien*;reviews.labels.label==editorial"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].title").value("The Hobbit"))
+    }
+
+    @Test
+    fun `rejects unknown property inside collection path with 400`() {
+        mockMvc.perform(get("/books").param("query", "tags.nosuch==1"))
+            .andExpect(status().isBadRequest)
+            .andExpect(content().string(containsString("nosuch")))
+    }
+
+    @Test
+    fun `rejects non-isEmpty operator on bare collection with 400`() {
+        mockMvc.perform(get("/books").param("query", "reviews==5"))
+            .andExpect(status().isBadRequest)
+            .andExpect(content().string(containsString("=isEmpty=")))
+    }
+
+    @Test
+    fun `rejects isEmpty on scalar property with 400`() {
+        mockMvc.perform(get("/books").param("query", "title=isEmpty=true"))
+            .andExpect(status().isBadRequest)
+    }
+
+    @Test
+    fun `finds books with no reviews via isEmpty true`() {
+        insertBookWithoutRelations()
+        mockMvc.perform(get("/books").param("query", "reviews=isEmpty=true"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(1))
+            .andExpect(jsonPath("$[0].title").value("The Silmarillion"))
+    }
+
+    @Test
+    fun `finds books with reviews via isEmpty false`() {
+        insertBookWithoutRelations()
+        mockMvc.perform(get("/books").param("query", "reviews=isEmpty=false"))
+            .andExpect(status().isOk)
+            .andExpect(jsonPath("$.length()").value(2))
+    }
+
+    private fun insertBookWithoutRelations() {
+        jdbcTemplate.execute(
+            "insert into book (id, title, isbn, publication_year, author_id, width_cm, height_cm, weight_grams) " +
+                "values (3, 'The Silmarillion', '9780048231390', 1977, 1, 14.0, 21.0, 400)",
+        )
+    }
+
+    @Test
+    fun `collection query is built as exists without distinct`() {
+        CapturingExecutor.statements.clear()
+        mockMvc.perform(get("/books").param("query", "reviews.rating==5"))
+            .andExpect(status().isOk)
+        val sql = CapturingExecutor.statements.joinToString("\n").lowercase()
+        assertTrue(sql.contains("exists"), sql)
+        assertFalse(sql.contains("distinct"), sql)
+    }
+
+    @Test
+    fun `reference join query uses left join`() {
+        CapturingExecutor.statements.clear()
+        mockMvc.perform(get("/books").param("query", "author.name==*Tolkien*"))
+            .andExpect(status().isOk)
+        val sql = CapturingExecutor.statements.joinToString("\n").lowercase()
+        assertTrue(sql.contains("left join"), sql)
+    }
+
+    @Test
+    fun `isEmpty true is built as not exists`() {
+        CapturingExecutor.statements.clear()
+        mockMvc.perform(get("/books").param("query", "reviews=isEmpty=true"))
+            .andExpect(status().isOk)
+        val sql = CapturingExecutor.statements.joinToString("\n").lowercase()
+        assertTrue(sql.contains("not exists"), sql)
     }
 }

@@ -1,3 +1,5 @@
+drop table if exists review_label;
+drop table if exists book_tag;
 drop table if exists book_categories;
 drop table if exists review;
 drop table if exists chapter;
@@ -27,6 +29,18 @@ create table review (
     rating int not null,
     comment text not null,
     book_id bigint references book (id)
+);
+
+create table book_tag (
+    id bigserial primary key,
+    tag text not null,
+    book_id bigint references book (id)
+);
+
+create table review_label (
+    id bigserial primary key,
+    label text not null,
+    review_id bigint references review (id)
 );
 
 create table chapter (
