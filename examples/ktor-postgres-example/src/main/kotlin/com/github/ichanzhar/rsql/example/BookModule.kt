@@ -29,7 +29,7 @@ fun Application.bookModule(sqlClient: KSqlClient) {
     install(ContentNegotiation) { jackson() }
     install(StatusPages) {
         exception<JimmerRsqlSupportException> { call, cause ->
-            call.respond(HttpStatusCode.BadRequest, mapOf("error" to cause.message))
+            call.respond(HttpStatusCode.BadRequest, mapOf("error" to (cause.message ?: "invalid RSQL query")))
         }
         exception<RSQLParserException> { call, cause ->
             call.respond(HttpStatusCode.BadRequest, mapOf("error" to (cause.message ?: "invalid RSQL query")))
