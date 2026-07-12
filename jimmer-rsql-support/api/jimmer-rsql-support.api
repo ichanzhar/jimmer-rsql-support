@@ -1,3 +1,37 @@
+public final class com/github/ichanzhar/rsql/jimmer/ParserContext : java/lang/Enum {
+	public static final field COMMON Lcom/github/ichanzhar/rsql/jimmer/ParserContext;
+	public static final field POSTGRESQL Lcom/github/ichanzhar/rsql/jimmer/ParserContext;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public static fun valueOf (Ljava/lang/String;)Lcom/github/ichanzhar/rsql/jimmer/ParserContext;
+	public static fun values ()[Lcom/github/ichanzhar/rsql/jimmer/ParserContext;
+}
+
+public final class com/github/ichanzhar/rsql/jimmer/RsqlOperation : java/lang/Enum {
+	public static final field Companion Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation$Companion;
+	public static final field EQUAL Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static final field EQUAL_CI Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static final field GREATER_THAN Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static final field GREATER_THAN_OR_EQUAL Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static final field IN Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static final field IS_EMPTY Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static final field IS_NULL Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static final field JSONB_EQ Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static final field JSON_EQ Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static final field LESS_THAN Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static final field LESS_THAN_OR_EQUAL Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static final field NOT_EQUAL Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static final field NOT_IN Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public final fun getContext ()Lcom/github/ichanzhar/rsql/jimmer/ParserContext;
+	public static fun getEntries ()Lkotlin/enums/EnumEntries;
+	public final fun getOperator ()Lcz/jirutka/rsql/parser/ast/ComparisonOperator;
+	public static fun valueOf (Ljava/lang/String;)Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+	public static fun values ()[Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+}
+
+public final class com/github/ichanzhar/rsql/jimmer/RsqlOperation$Companion {
+	public final fun from (Lcz/jirutka/rsql/parser/ast/ComparisonOperator;)Lcom/github/ichanzhar/rsql/jimmer/RsqlOperation;
+}
+
 public final class com/github/ichanzhar/rsql/jimmer/exception/InvalidDateFormatException : com/github/ichanzhar/rsql/jimmer/exception/JimmerRsqlSupportException {
 	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
 }
