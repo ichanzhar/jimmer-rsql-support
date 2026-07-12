@@ -55,7 +55,7 @@ public object RsqlOperationsRegistry {
     }
 
     public fun initDefaultPostgresOperation() {
-        registerOperation(RsqlOperation.JSON_EQ.operator) { JsonEqualProcessor(it) }
-        registerOperation(RsqlOperation.JSONB_EQ.operator) { JsonbEqualProcessor(it) }
+        processors.putIfAbsent(RsqlOperation.JSON_EQ.operator) { JsonEqualProcessor(it) }
+        processors.putIfAbsent(RsqlOperation.JSONB_EQ.operator) { JsonbEqualProcessor(it) }
     }
 }
