@@ -172,26 +172,26 @@ Each unchecked cast is annotated `@Suppress("UNCHECKED_CAST")` at the smallest s
 `requireNotNull(params.expression)` with a message mentioning the operator guards the
 Phase 1 nullable field.
 
-## JavaTypeUtil amendment (justified deviation from strict parity)
+## JavaTypeUtil and ArgumentConvertor normalization (justified deviation from strict parity)
 
-The JPA original's map lacks boxed wrapper names (only `java.lang.Boolean` is present),
-so boxed numeric metamodel types fell through `castArgument` to the raw-string fallback
-and Hibernate's criteria API coerced the strings at bind time. Jimmer performs no such
-coercion - a String literal against an int column is a Postgres type error - so the map
-gains boxed names mapping to the same class instances the `castArgument` branches match:
+Amended during implementation (integration matrix evidence, task 7): Jimmer's
+`ImmutableProp.returnClass` yields PRIMITIVE classes (`int.class`) for non-null Kotlin
+props and boxed classes for nullable ones. The Kotlin primitive class literals the JPA
+port compared against (`Int::class.java` == `int.class`) therefore never matched boxed
+values, and Jimmer performs no Hibernate-style string coercion at bind time. The shipped
+normalization is boxed-everywhere:
 
-```
-"java.lang.Integer" -> Int::class.java
-"java.lang.Long" -> Long::class.java
-"java.lang.Double" -> Double::class.java
-"java.lang.Float" -> Float::class.java
-"java.lang.Short" -> Short::class.java
-"java.lang.Byte" -> Byte::class.java
-"java.lang.Character" -> Char::class.java
-```
+- `JavaTypeUtil.primitiveWrappers` keys are the primitive type names only
+  ("boolean", "byte", "char", "double", "float", "int", "long", "short"), each mapping
+  to the BOXED class (`Boolean::class.javaObjectType`, `Integer::class.java`, ...).
+  Boxed `returnClass` values pass through the `?: propertyJavaType` identity fallback.
+- `ArgumentConvertor.castArgument` branches compare against `::class.javaObjectType`
+  for all primitive-capable types; non-primitive branches (BigInteger, BigDecimal,
+  UUID, dates, enums) are unchanged.
 
-`castArgument` itself is untouched. Existing primitive-name entries stay. Public
-signatures unchanged, `.api` dump unaffected.
+Coercion contract unchanged: silent raw-string fallback on failure,
+`InvalidDateFormatException`/`InvalidEnumValueException` propagate. Public signatures
+unchanged, `.api` dump unaffected.
 
 ## Exceptions
 
@@ -229,8 +229,12 @@ own `settings.gradle.kts` with `includeBuild("../..")`), NOT in the root build o
   `sqlClient.createRsqlQuery(Book::class, query).execute()`.
 - `@RestControllerAdvice` mapping `JimmerRsqlSupportException` and `RSQLParserException`
   to 400 with a problem-details body.
-- Jackson: register Jimmer's `ImmutableModule` (the starter does this automatically;
-  the fallback wiring registers it explicitly).
+- Jackson (amended during implementation): the controller maps entities to a plain
+  `BookDto` data class instead of returning Jimmer immutables - Boot 4 ships Jackson 3
+  (`tools.jackson`) while Jimmer's `ImmutableModule` targets Jackson 2, so no Jimmer
+  Jackson module is registered at all. The compatibility gate fired: the starter does
+  not provide beans under Boot 4.1.0, and the example uses the fallback manual
+  `KSqlClient` bean plus `spring-boot-starter-jdbc`.
 
 ### Integration test matrix (Testcontainers postgres:16-alpine, @ServiceConnection, MockMvc)
 
