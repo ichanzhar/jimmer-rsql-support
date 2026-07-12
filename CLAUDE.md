@@ -6,7 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Kotlin library translating RSQL query strings (parsed by `cz.jirutka.rsql:rsql-parser`) into Jimmer ORM `KNonNullExpression<Boolean>` predicates, ported from `rsql-hibernate-jpa` (https://github.com/ichanzhar/rsql-hibernate-jpa). Published to Maven Central as `com.github.ichanzhar:jimmer-rsql-support`.
 
-**Current state: greenfield.** No code exists yet. The authoritative spec is `docs/jimmer-rsql-support-implementation-plan.md` — read it before implementing anything. It defines architecture, operator mappings, Kotlin/FP conventions, and phased acceptance criteria.
+**Current state: phases 1-2 done.** Parser layer, SelectorResolver (scalar/reference/embedded),
+scalar processors, and the public `toPredicate`/`createRsqlQuery` API are implemented; the
+spring-boot4-postgres-example integration suite is the acceptance evidence. Collection
+selectors (EXISTS), `=isEmpty=`, and JSON operators are still stubs (phases 3-4). The
+authoritative spec is `docs/jimmer-rsql-support-implementation-plan.md`. Note: jimmer-spring-boot-starter 0.9.96 is incompatible with Spring Boot 4.1.0; the example wires a manual `KSqlClient` bean over `jimmer-sql-kotlin` instead.
 
 ## Commands
 
