@@ -44,6 +44,14 @@ public class com/github/ichanzhar/rsql/jimmer/exception/JimmerRsqlSupportExcepti
 	public fun <init> (Ljava/lang/String;)V
 }
 
+public final class com/github/ichanzhar/rsql/jimmer/exception/UnknownPropertyException : com/github/ichanzhar/rsql/jimmer/exception/JimmerRsqlSupportException {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)V
+}
+
+public final class com/github/ichanzhar/rsql/jimmer/exception/UnsupportedSelectorException : com/github/ichanzhar/rsql/jimmer/exception/JimmerRsqlSupportException {
+	public fun <init> (Ljava/lang/String;Ljava/lang/String;)V
+}
+
 public final class com/github/ichanzhar/rsql/jimmer/operations/Params {
 	public fun <init> (Lorg/babyfish/jimmer/sql/kt/ast/expression/KPropExpression;Lorg/babyfish/jimmer/meta/ImmutableProp;Ljava/util/List;Ljava/lang/Object;)V
 	public final fun component1 ()Lorg/babyfish/jimmer/sql/kt/ast/expression/KPropExpression;
