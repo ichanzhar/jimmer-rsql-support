@@ -28,6 +28,10 @@ jobs:
             echo "Could not extract version from jimmer-rsql-support/build.gradle.kts"
             exit 1
           fi
+          if [[ "$VERSION" == *-SNAPSHOT ]]; then
+            echo "Refusing to release a SNAPSHOT version: $VERSION"
+            exit 1
+          fi
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Check tag does not exist

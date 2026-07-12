@@ -55,7 +55,7 @@ public object ArgumentConvertor {
     ): Date =
         runCatching { LocalDateTime.parse(arg) }
             .recoverCatching { LocalDateTime.parse(arg, fallbackDateTimeFormat) }
-            .map { Date.from(it.atZone(ZoneId.systemDefault()).toInstant()) }
+            .mapCatching { Date.from(it.atZone(ZoneId.systemDefault()).toInstant()) }
             .getOrElse { throw InvalidDateFormatException(arg, property) }
 
     private fun enumValue(
