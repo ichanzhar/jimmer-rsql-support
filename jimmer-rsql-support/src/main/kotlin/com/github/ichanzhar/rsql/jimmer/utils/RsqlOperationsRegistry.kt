@@ -8,6 +8,8 @@ import com.github.ichanzhar.rsql.jimmer.operations.GteProcessor
 import com.github.ichanzhar.rsql.jimmer.operations.InProcessor
 import com.github.ichanzhar.rsql.jimmer.operations.IsEmptyProcessor
 import com.github.ichanzhar.rsql.jimmer.operations.IsNullProcessor
+import com.github.ichanzhar.rsql.jimmer.operations.JsonEqualProcessor
+import com.github.ichanzhar.rsql.jimmer.operations.JsonbEqualProcessor
 import com.github.ichanzhar.rsql.jimmer.operations.LtProcessor
 import com.github.ichanzhar.rsql.jimmer.operations.LteProcessor
 import com.github.ichanzhar.rsql.jimmer.operations.NotEqualProcessor
@@ -53,12 +55,7 @@ public object RsqlOperationsRegistry {
     }
 
     public fun initDefaultPostgresOperation() {
-        registerOperation(RsqlOperation.JSON_EQ.operator, futureStub("=jsoneq=", "phase 4"))
-        registerOperation(RsqlOperation.JSONB_EQ.operator, futureStub("=jsonbeq=", "phase 4"))
+        registerOperation(RsqlOperation.JSON_EQ.operator) { JsonEqualProcessor(it) }
+        registerOperation(RsqlOperation.JSONB_EQ.operator) { JsonbEqualProcessor(it) }
     }
-
-    private fun futureStub(
-        symbol: String,
-        phase: String,
-    ): ProcessorParamsBuilder = { Processor { TODO("Processor for '$symbol' arrives in $phase") } }
 }
