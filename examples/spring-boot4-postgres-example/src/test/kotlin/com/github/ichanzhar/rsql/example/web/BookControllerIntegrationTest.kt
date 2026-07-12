@@ -183,13 +183,6 @@ class BookControllerIntegrationTest {
     }
 
     @Test
-    fun `rejects collection selector with 400 until phase 3`() {
-        mockMvc.perform(get("/books").param("query", "reviews.rating==5"))
-            .andExpect(status().isBadRequest)
-            .andExpect(content().string(containsString("reviews")))
-    }
-
-    @Test
     fun `rejects malformed rsql with 400`() {
         mockMvc.perform(get("/books").param("query", "title=="))
             .andExpect(status().isBadRequest)
