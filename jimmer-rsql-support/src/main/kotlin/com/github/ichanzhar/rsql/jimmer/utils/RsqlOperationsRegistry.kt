@@ -27,10 +27,10 @@ public object RsqlOperationsRegistry {
         )
 
     public val operationProcessors: Map<ComparisonOperator, ProcessorParamsBuilder>
-        get() = processors
+        get() = processors.toMap()
 
     public val operations: Set<ComparisonOperator>
-        get() = processors.keys
+        get() = processors.keys.toSet()
 
     public fun registerOperation(
         operator: ComparisonOperator,
