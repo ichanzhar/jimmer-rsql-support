@@ -9,6 +9,8 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.server.testing.testApplication
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 import org.babyfish.jimmer.sql.kt.KSqlClient
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -116,4 +118,143 @@ class BookRoutesIntegrationTest {
 
     @Test
     fun `returns all books when query is absent`() = assertCount(null, 2)
+
+    @Test
+    fun `filters by wildcard equality`() = assertSingle("title==*Hobbit*", "The Hobbit")
+
+    @Test
+    fun `filters by exact equality`() = assertSingle("title==Dune", "Dune")
+
+    @Test
+    fun `filters by inequality`() = assertSingle("title!=Dune", "The Hobbit")
+
+    @Test
+    fun `filters by greater than with fiql alias`() = assertSingle("publicationYear=gt=1950", "Dune")
+
+    @Test
+    fun `combines range bounds with logical and`() =
+        assertCount("publicationYear>=1937;publicationYear<=1965", 2)
+
+    @Test
+    fun `filters by in list`() = assertSingle("publicationYear=in=(1937,2000)", "The Hobbit")
+
+    @Test
+    fun `filters by not in list`() = assertSingle("publicationYear=out=(1937)", "Dune")
+
+    @Test
+    fun `filters by is null`() = assertSingle("isbn=isNull=true", "Dune")
+
+    @Test
+    fun `filters by is not null`() = assertSingle("isbn=isNull=false", "The Hobbit")
+
+    @Test
+    fun `filters by reference join path`() = assertSingle("author.name==*Tolkien*", "The Hobbit")
+
+    @Test
+    fun `filters case insensitively through a join`() =
+        assertSingle("author.email=eqci=HERBERT@EXAMPLE.COM", "Dune")
+
+    @Test
+    fun `filters by embedded value object field`() = assertSingle("dimensions.weightGrams=gt=400", "Dune")
+
+    @Test
+    fun `combines predicates with logical or`() = assertCount("title==Dune,title==*Hobbit*", 2)
+
+    @Test
+    fun `rejects unknown property with 400`() = assertBadRequest("nosuchfield==1", "nosuchfield")
+
+    @Test
+    fun `rejects malformed rsql with 400`() = assertBadRequest("title==")
+
+    @Test
+    fun `filters by child entity tag through exists`() = assertSingle("tags.tag==classic", "The Hobbit")
+
+    @Test
+    fun `filters by one-to-many field`() = assertCount("reviews.rating==5", 2)
+
+    @Test
+    fun `negation across collections uses exists semantics`() =
+        assertSingle("reviews.rating!=5", "The Hobbit")
+
+    @Test
+    fun `filters by two-level nested collection path`() =
+        assertSingle("reviews.labels.label==urgent", "Dune")
+
+    @Test
+    fun `filters by list association field`() = assertSingle("chapters.title==Prologue", "Dune")
+
+    @Test
+    fun `filters by many-to-many association`() = assertSingle("categories.name==Fantasy", "The Hobbit")
+
+    @Test
+    fun `combines join and nested collection filter with logical and`() =
+        assertSingle("author.name==*Tolkien*;reviews.labels.label==editorial", "The Hobbit")
+
+    @Test
+    fun `rejects unknown property inside collection path with 400`() =
+        assertBadRequest("tags.nosuch==1", "tags.nosuch")
+
+    @Test
+    fun `rejects non-isEmpty operator on bare collection with 400`() =
+        assertBadRequest("reviews==5", "=isEmpty=")
+
+    @Test
+    fun `rejects isEmpty on scalar property with 400`() = assertBadRequest("title=isEmpty=true")
+
+    @Test
+    fun `finds books with no reviews via isEmpty true`() {
+        insertBookWithoutRelations()
+        assertSingle("reviews=isEmpty=true", "The Silmarillion")
+    }
+
+    @Test
+    fun `finds books with reviews via isEmpty false`() {
+        insertBookWithoutRelations()
+        assertCount("reviews=isEmpty=false", 2)
+    }
+
+    @Test
+    fun `collection query is built as exists without distinct`() {
+        CapturingExecutor.statements.clear()
+        val (status, body) = searchRaw("reviews.rating==5")
+        assertEquals(HttpStatusCode.OK, status, body)
+        val sql = CapturingExecutor.statements.joinToString("\n").lowercase()
+        assertTrue(sql.contains("exists"), sql)
+        assertFalse(sql.contains("distinct"), sql)
+    }
+
+    @Test
+    fun `reference join query uses left join`() {
+        CapturingExecutor.statements.clear()
+        val (status, body) = searchRaw("author.name==*Tolkien*")
+        assertEquals(HttpStatusCode.OK, status, body)
+        val sql = CapturingExecutor.statements.joinToString("\n").lowercase()
+        assertTrue(sql.contains("left join"), sql)
+    }
+
+    @Test
+    fun `isEmpty true is built as not exists`() {
+        CapturingExecutor.statements.clear()
+        val (status, body) = searchRaw("reviews=isEmpty=true")
+        assertEquals(HttpStatusCode.OK, status, body)
+        val sql = CapturingExecutor.statements.joinToString("\n").lowercase()
+        assertTrue(sql.contains("not exists"), sql)
+    }
+
+    @Test
+    fun `filters by jsonb path equality`() = assertSingle("metadata=jsonbeq=genre|scifi", "Dune")
+
+    @Test
+    fun `filters by nested jsonb path`() =
+        assertSingle("metadata=jsonbeq=publisher.name|Chilton", "Dune")
+
+    @Test
+    fun `filters by json path equality`() = assertSingle("details=jsoneq=format|paperback", "Dune")
+
+    @Test
+    fun `rejects malformed json operator argument with 400`() =
+        assertBadRequest("metadata=jsonbeq=nopipe", "<json.path>|<value>")
+
+    @Test
+    fun `collection match yields one row per parent`() = assertCount("reviews.rating>=4", 2)
 }
