@@ -75,3 +75,17 @@ public final class com/github/ichanzhar/rsql/jimmer/utils/JavaTypeUtil {
 	public final fun getPropertyJavaType (Ljava/lang/Class;)Ljava/lang/Class;
 }
 
+public final class com/github/ichanzhar/rsql/jimmer/utils/RsqlOperationsRegistry {
+	public static final field INSTANCE Lcom/github/ichanzhar/rsql/jimmer/utils/RsqlOperationsRegistry;
+	public final fun getOperationProcessors ()Ljava/util/Map;
+	public final fun getOperations ()Ljava/util/Set;
+	public final fun initDefaultPostgresOperation ()V
+	public final fun registerOperation (Lcz/jirutka/rsql/parser/ast/ComparisonOperator;Lkotlin/jvm/functions/Function1;)V
+}
+
+public final class com/github/ichanzhar/rsql/jimmer/utils/RsqlParserFactory {
+	public static final field INSTANCE Lcom/github/ichanzhar/rsql/jimmer/utils/RsqlParserFactory;
+	public final fun instance (Lcom/github/ichanzhar/rsql/jimmer/ParserContext;)Lcz/jirutka/rsql/parser/RSQLParser;
+	public static synthetic fun instance$default (Lcom/github/ichanzhar/rsql/jimmer/utils/RsqlParserFactory;Lcom/github/ichanzhar/rsql/jimmer/ParserContext;ILjava/lang/Object;)Lcz/jirutka/rsql/parser/RSQLParser;
+}
+
